@@ -1,10 +1,12 @@
 export interface ConfigBaseProps {
-  persistNavigation: "always" | "dev" | "prod" | "never"
-  catchErrors: "always" | "dev" | "prod" | "never"
-  exitRoutes: string[]
+  dittoAppId: string;
+  dittoPlaygroundToken: string;
+  persistNavigation: "always" | "dev" | "prod" | "never";
+  catchErrors: "always" | "dev" | "prod" | "never";
+  exitRoutes: string[];
 }
 
-export type PersistNavigationConfig = ConfigBaseProps["persistNavigation"]
+export type PersistNavigationConfig = ConfigBaseProps["persistNavigation"];
 
 const BaseConfig: ConfigBaseProps = {
   // This feature is particularly useful in development mode, but
@@ -21,6 +23,9 @@ const BaseConfig: ConfigBaseProps = {
    * is pressed while in that screen. Only affects Android.
    */
   exitRoutes: ["Welcome"],
-}
 
-export default BaseConfig
+  dittoAppId: process.env.EXPO_PUBLIC_DITTO_APP_ID || "",
+  dittoPlaygroundToken: process.env.EXPO_PUBLIC_DITTO_PLAYGROUND_TOKEN || "",
+};
+
+export default BaseConfig;
