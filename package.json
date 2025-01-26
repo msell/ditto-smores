@@ -26,6 +26,7 @@
     "bundle:web": "npx expo export --platform web",
     "serve:web": "npx serve dist",
     "deploy:web": "eas deploy",
+    "shipit:web": "bun bundle:web && eas deploy --prod",
     "prebuild:clean": "npx expo prebuild --clean"
   },
   "dependencies": {
