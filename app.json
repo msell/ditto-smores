@@ -1,6 +1,7 @@
 {
   "name": "smores",
   "displayName": "smores",
+  "owner": "atomicbytes",
   "expo": {
     "name": "smores",
     "slug": "smores",
@@ -14,9 +15,7 @@
     },
     "newArchEnabled": true,
     "jsEngine": "hermes",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "android": {
       "icon": "./assets/images/app-icon-android-legacy.png",
       "package": "com.atomicbytes.smores",
@@ -32,7 +31,8 @@
     },
     "web": {
       "favicon": "./assets/images/app-icon-web-favicon.png",
-      "bundler": "metro"
+      "bundler": "metro",
+      "output": "static"
     },
     "plugins": [
       "expo-localization",
