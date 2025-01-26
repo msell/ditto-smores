@@ -40,10 +40,23 @@ export default observer(function WelcomeScreen() {
         <View style={themed($contentContainer)}>
           <View style={themed($row)}>
             <TextField
+              autoFocus
               placeholder="Add a task"
               value={newItem}
               onChangeText={setNewItem}
               style={themed($input)}
+              onKeyPress={(e) => {
+                if (e.nativeEvent.key === 'Enter') {
+                  upsert({
+                    value: {
+                      id: crypto.randomUUID(),
+                      title: newItem,
+                      completed: false,
+                    },
+                  })
+                  setNewItem('')
+                }
+              }}
             />
             <Button
               preset="filled"
