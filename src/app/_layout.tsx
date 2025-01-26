@@ -8,6 +8,8 @@ import { customFontsToLoad } from "@/theme"
 import { initI18n } from "@/i18n"
 import { loadDateFnsLocale } from "@/utils/formatDate"
 import { useThemeProvider } from "@/utils/useAppTheme"
+import {DittoProvider, useOnlinePlaygroundIdentity } from '@dittolive/react-ditto'
+import { Ditto } from "@dittolive/ditto"
 
 SplashScreen.preventAutoHideAsync()
 
@@ -20,6 +22,16 @@ if (__DEV__) {
 
 export { ErrorBoundary } from "@/components/ErrorBoundary/ErrorBoundary"
 
+// const createDittoInstance = () => {
+//   const ditto = new Ditto({
+//     type: "onlinePlayground",
+//     appID: process.env.EXPO_PUBLIC_DITTO_APP_ID || "",
+//     token: process.env.EXPO_PUBLIC_DITTO_PLAYGROUND_TOKEN || "",
+//   });
+//   ditto.startSync()
+//   return ditto
+// }
+
 export default function Root() {
   // Wait for stores to load and render our layout inside of it so we have access
   // to auth info etc
@@ -28,12 +40,20 @@ export default function Root() {
   const [fontsLoaded, fontError] = useFonts(customFontsToLoad)
   const [isI18nInitialized, setIsI18nInitialized] = useState(false)
   const { themeScheme, setThemeContextOverride, ThemeProvider } = useThemeProvider()
-
+  const { create } = useOnlinePlaygroundIdentity()
   useEffect(() => {
-    initI18n()
-      .then(() => setIsI18nInitialized(true))
-      .then(() => loadDateFnsLocale())
+    const initServices = async () => {
+      await Promise.all([
+        initI18n()
+          .then(() => setIsI18nInitialized(true))
+          .then(() => loadDateFnsLocale()),
+
+      ])
+    }
+
+    initServices()
   }, [])
+
 
   const loaded = fontsLoaded && isI18nInitialized && rehydrated
 
@@ -53,9 +73,33 @@ export default function Root() {
 
   return (
     <ThemeProvider value={{ themeScheme, setThemeContextOverride }}>
-      <KeyboardProvider>
-        <Slot />
-      </KeyboardProvider>
+        <KeyboardProvider>
+        <DittoProvider
+      setup={async () => {
+        const ditto = new Ditto(
+          create({
+            appID: process.env.EXPO_PUBLIC_DITTO_APP_ID || "",
+            token: process.env.EXPO_PUBLIC_DITTO_PLAYGROUND_TOKEN || "",
+          }),
+          'testing',
+        )
+        await ditto.disableSyncWithV3()
+        ditto.startSync()
+        return ditto
+      }}
+      /* initOptions={initOptions} */
+    >
+      {({ loading, error }) => {
+        if (loading) return <p>Loading</p>
+        if (error) return <p>{error.message}</p>
+        return <Slot />
+      }}
+    </DittoProvider>
+        </KeyboardProvider>
     </ThemeProvider>
   )
 }
+function createIdentity(): import("@dittolive/ditto").Identity | undefined {
+  throw new Error("Function not implemented.")
+}
+

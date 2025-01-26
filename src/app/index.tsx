@@ -3,8 +3,10 @@ import { ThemedStyle } from "@/theme"
 import { useAppTheme } from "@/utils/useAppTheme"
 import MaterialIcons from "@expo/vector-icons/MaterialIcons"
 import { observer } from "mobx-react-lite"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Pressable, TextStyle, View, ViewStyle } from "react-native"
+import { useDitto } from "@/services/database/useDitto"
+import { useMutations, usePendingCursorOperation } from "@dittolive/react-ditto"
 
 type Task = {
   id: string
@@ -15,7 +17,17 @@ type Task = {
 export default observer(function WelcomeScreen() {
   const { theme, themed } = useAppTheme()
   const [newItem, setNewItem] = useState("")
-  const [tasks, setTasks] = useState<Task[]>([])
+  // const [tasks, setTasks] = useState<Task[]>([])
+  const { documents } = usePendingCursorOperation({
+    collection: 'tasks',
+  })
+
+
+  const { removeByID, upsert, updateByID } = useMutations({ collection: 'tasks' })
+
+
+
+
   return (
     <Screen safeAreaEdges={["top"]} contentContainerStyle={themed($container)}>
       <View style={themed($topContainer)}>
@@ -36,10 +48,13 @@ export default observer(function WelcomeScreen() {
             <Button
               preset="filled"
               onPress={() => {
-                setTasks([
-                  ...tasks,
-                  { id: Date.now().toString(), title: newItem, completed: false },
-                ])
+                upsert({
+                  value: {
+                    id: crypto.randomUUID(),
+                    title: newItem,
+                    completed: false,
+                  },
+                })
                 setNewItem("")
               }}
               style={themed($addButton)}
@@ -48,26 +63,30 @@ export default observer(function WelcomeScreen() {
             </Button>
           </View>
           <View style={themed($taskList)}>
-            {tasks.map((t) => (
+            {documents.map((doc) => (
               <Pressable
-                key={t.id}
+                key={doc.id.toString()}
                 onPress={() => {
-                  setTasks(
-                    tasks.map((task) =>
-                      task.id === t.id ? { ...task, completed: !task.completed } : task,
-                    ),
-                  )
+                  updateByID({
+                    _id: doc.id,
+                    updateClosure: (doc) => {
+                      return {
+                        ...doc,
+                        completed: !doc.value.completed,
+                      }
+                    }
+                  })
                 }}
               >
                 <View style={themed($row)}>
-                  {t.completed ? (
-                    <MaterialIcons name="radio-button-checked" style={themed($taskIcon(t.completed))} />
+                  {doc.value.completed ? (
+                    <MaterialIcons name="radio-button-checked" style={themed($taskIcon(doc.value.completed))} />
                   ) : (
-                    <MaterialIcons name="radio-button-unchecked" style={themed($taskIcon(t.completed))} />
+                    <MaterialIcons name="radio-button-unchecked" style={themed($taskIcon(doc.value.completed))} />
                   )}
 
-                  <Text style={$taskTitle(t.completed)} preset="subheading">
-                    {t.title}
+                  <Text style={$taskTitle(doc.value.completed)} preset="subheading">
+                    {doc.value.title}
                   </Text>
                 </View>
               </Pressable>

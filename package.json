@@ -28,6 +28,8 @@
     "prebuild:clean": "npx expo prebuild --clean"
   },
   "dependencies": {
+    "@dittolive/ditto": "^4.9.3",
+    "@dittolive/react-ditto": "^0.11.2",
     "@expo-google-fonts/space-grotesk": "^0.2.2",
     "@expo/metro-runtime": "~4.0.0",
     "@react-navigation/native": "^6.0.2",
@@ -93,5 +95,9 @@
   },
   "engines": {
     "node": "^18.18.0 || >=20.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/msell/ditto-smores"
   }
 }
