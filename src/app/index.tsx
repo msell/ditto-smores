@@ -16,11 +16,11 @@ type Task = {
 export default observer(function WelcomeScreen() {
   const { theme, themed } = useAppTheme()
   const [newItem, setNewItem] = useState('')
-  const { documents, collection } = usePendingCursorOperation({
+  const { documents } = usePendingCursorOperation({
     collection: 'tasks',
   })
 
-  const { upsert, updateByID } = useMutations({
+  const { upsert, updateByID, removeByID } = useMutations({
     collection: 'tasks',
   })
 
