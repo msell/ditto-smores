@@ -6,6 +6,7 @@ import { observer } from 'mobx-react-lite'
 import { useState } from 'react'
 import { Pressable, TextStyle, View, ViewStyle } from 'react-native'
 import { useMutations, usePendingCursorOperation } from '@dittolive/react-ditto'
+import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated'
 
 type Task = {
   id: string
@@ -23,6 +24,8 @@ export default observer(function WelcomeScreen() {
   const { upsert, updateByID, removeByID } = useMutations({
     collection: 'tasks',
   })
+
+  const [timeouts, setTimeouts] = useState<Record<string, NodeJS.Timeout>>({})
 
   return (
     <Screen safeAreaEdges={['top']} contentContainerStyle={themed($container)}>
@@ -60,38 +63,64 @@ export default observer(function WelcomeScreen() {
           </View>
           <View style={themed($taskList)}>
             {documents.map((doc) => (
-              <Pressable
-                key={doc.id.toString()}
-                onPress={() => {
-                  updateByID({
-                    _id: doc.id,
-                    updateClosure: (mutableDoc) => {
-                      mutableDoc.at('completed').set(!doc.value.completed)
-                    },
-                  })
-                }}
+              <Animated.View
+                key={doc.value.id}
+                entering={FadeInUp}
+                exiting={FadeOutDown}
               >
-                <View style={themed($row)}>
-                  {doc.value.completed ? (
-                    <MaterialIcons
-                      name="radio-button-checked"
-                      style={themed($taskIcon(doc.value.completed))}
-                    />
-                  ) : (
-                    <MaterialIcons
-                      name="radio-button-unchecked"
-                      style={themed($taskIcon(doc.value.completed))}
-                    />
-                  )}
+                <Pressable
+                  onPress={() => {
+                    const isCompleted = !doc.value.completed
 
-                  <Text
-                    style={$taskTitle(doc.value.completed)}
-                    preset="subheading"
-                  >
-                    {doc.value.title}
-                  </Text>
-                </View>
-              </Pressable>
+                    updateByID({
+                      _id: doc.id,
+                      updateClosure: (mutableDoc) => {
+                        mutableDoc.at('completed').set(isCompleted)
+                      },
+                    })
+
+                    if (isCompleted) {
+                      const timeoutId = setTimeout(() => {
+                        removeByID({ _id: doc.id })
+                      }, 5000)
+
+                      setTimeouts((prevTimeouts) => ({
+                        ...prevTimeouts,
+                        [doc.value.id]: timeoutId,
+                      }))
+                    } else {
+                      if (timeouts[doc.value.id]) {
+                        clearTimeout(timeouts[doc.value.id])
+                        setTimeouts((prevTimeouts) => {
+                          const { [doc.value.id]: _, ...rest } = prevTimeouts
+                          return rest
+                        })
+                      }
+                    }
+                  }}
+                >
+                  <View style={themed($row)}>
+                    {doc.value.completed ? (
+                      <MaterialIcons
+                        name="radio-button-checked"
+                        style={themed($taskIcon(doc.value.completed))}
+                      />
+                    ) : (
+                      <MaterialIcons
+                        name="radio-button-unchecked"
+                        style={themed($taskIcon(doc.value.completed))}
+                      />
+                    )}
+
+                    <Text
+                      style={$taskTitle(doc.value.completed)}
+                      preset="subheading"
+                    >
+                      {doc.value.title}
+                    </Text>
+                  </View>
+                </Pressable>
+              </Animated.View>
             ))}
           </View>
         </View>
