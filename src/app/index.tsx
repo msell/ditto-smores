@@ -7,7 +7,7 @@ import { useState } from 'react'
 import { Pressable, TextStyle, View, ViewStyle } from 'react-native'
 import { useMutations, usePendingCursorOperation } from '@dittolive/react-ditto'
 import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated'
-import { ScrollView } from 'react-native-gesture-handler'
+import { FlashList } from '@shopify/flash-list'
 
 type Task = {
   id: string
@@ -16,7 +16,7 @@ type Task = {
 }
 
 export default observer(function WelcomeScreen() {
-  const { theme, themed } = useAppTheme()
+  const { themed } = useAppTheme()
   const [newItem, setNewItem] = useState('')
   const { documents } = usePendingCursorOperation({
     collection: 'tasks',
@@ -62,73 +62,72 @@ export default observer(function WelcomeScreen() {
               Add
             </Button>
           </View>
-          <ScrollView
-            style={themed($taskList)}
-            keyboardShouldPersistTaps="handled"
-          >
-            <View>
-              {documents.map((doc) => (
-                <Animated.View
-                  key={doc.value.id}
-                  entering={FadeInUp}
-                  exiting={FadeOutDown}
-                >
-                  <Pressable
-                    onPress={() => {
-                      const isCompleted = !doc.value.completed
+          <FlashList
+            data={documents}
+            renderItem={({ item }) => (
+              <Animated.View
+                key={item.value.id}
+                entering={FadeInUp}
+                exiting={FadeOutDown}
+              >
+                <Pressable
+                  onPress={() => {
+                    const isCompleted = !item.value.completed
 
-                      updateByID({
-                        _id: doc.id,
-                        updateClosure: (mutableDoc) => {
-                          mutableDoc.at('completed').set(isCompleted)
-                        },
-                      })
+                    updateByID({
+                      _id: item.id,
+                      updateClosure: (mutableDoc) => {
+                        mutableDoc.at('completed').set(isCompleted)
+                      },
+                    })
 
-                      if (isCompleted) {
-                        const timeoutId = setTimeout(() => {
-                          removeByID({ _id: doc.id })
-                        }, 5000)
+                    if (isCompleted) {
+                      const timeoutId = setTimeout(() => {
+                        removeByID({ _id: item.id })
+                      }, 5000)
 
-                        setTimeouts((prevTimeouts) => ({
-                          ...prevTimeouts,
-                          [doc.value.id]: timeoutId,
-                        }))
-                      } else {
-                        if (timeouts[doc.value.id]) {
-                          clearTimeout(timeouts[doc.value.id])
-                          setTimeouts((prevTimeouts) => {
-                            const { [doc.value.id]: _, ...rest } = prevTimeouts
-                            return rest
-                          })
-                        }
+                      setTimeouts((prevTimeouts) => ({
+                        ...prevTimeouts,
+                        [item.value.id]: timeoutId,
+                      }))
+                    } else {
+                      if (timeouts[item.value.id]) {
+                        clearTimeout(timeouts[item.value.id])
+                        setTimeouts((prevTimeouts) => {
+                          const { [item.value.id]: _, ...rest } = prevTimeouts
+                          return rest
+                        })
                       }
-                    }}
-                  >
-                    <View style={themed($row)}>
-                      {doc.value.completed ? (
-                        <MaterialIcons
-                          name="radio-button-checked"
-                          style={themed($taskIcon(doc.value.completed))}
-                        />
-                      ) : (
-                        <MaterialIcons
-                          name="radio-button-unchecked"
-                          style={themed($taskIcon(doc.value.completed))}
-                        />
-                      )}
+                    }
+                  }}
+                >
+                  <View style={themed($row)}>
+                    {item.value.completed ? (
+                      <MaterialIcons
+                        name="radio-button-checked"
+                        style={themed($taskIcon(item.value.completed))}
+                      />
+                    ) : (
+                      <MaterialIcons
+                        name="radio-button-unchecked"
+                        style={themed($taskIcon(item.value.completed))}
+                      />
+                    )}
 
-                      <Text
-                        style={$taskTitle(doc.value.completed)}
-                        preset="subheading"
-                      >
-                        {doc.value.title}
-                      </Text>
-                    </View>
-                  </Pressable>
-                </Animated.View>
-              ))}
-            </View>
-          </ScrollView>
+                    <Text
+                      style={$taskTitle(item.value.completed)}
+                      preset="subheading"
+                    >
+                      {item.value.title}
+                    </Text>
+                  </View>
+                </Pressable>
+              </Animated.View>
+            )}
+            keyExtractor={(item) => item.value.id}
+            estimatedItemSize={100}
+            style={themed($taskList)}
+          />
         </View>
       </View>
     </Screen>
