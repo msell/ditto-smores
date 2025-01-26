@@ -69,6 +69,7 @@ export default observer(function WelcomeScreen() {
                 key={item.value.id}
                 entering={FadeInUp}
                 exiting={FadeOutDown}
+                style={themed($card)}
               >
                 <Pressable
                   onPress={() => {
@@ -115,8 +116,9 @@ export default observer(function WelcomeScreen() {
                     )}
 
                     <Text
-                      style={$taskTitle(item.value.completed)}
+                      style={themed($taskTitle(item.value.completed))}
                       preset="subheading"
+                      numberOfLines={3}
                     >
                       {item.value.title}
                     </Text>
@@ -180,7 +182,7 @@ const $contentContainer: ThemedStyle<ViewStyle> = ({ spacing, colors }) => ({
   maxWidth: 600,
   gap: spacing.lg,
   paddingHorizontal: spacing.lg,
-  backgroundColor: colors.palette.neutral100,
+  backgroundColor: colors.palette.neutral700,
   borderRadius: 10,
   padding: spacing.lg,
   boxShadow: `0 0 10px ${colors.palette.neutral400}`,
@@ -194,4 +196,12 @@ const $input: TextStyle = {
 const $addButton: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   height: 48,
   paddingHorizontal: spacing.lg,
+})
+
+const $card: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
+  backgroundColor: colors.palette.neutral100,
+  borderRadius: 8,
+  padding: spacing.md,
+  marginVertical: spacing.xs,
+  boxShadow: `0 2px 4px ${colors.palette.neutral400}`,
 })
