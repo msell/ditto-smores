@@ -9,7 +9,7 @@ const pkg = { name: 'smores', version: 'UNVERSIONED' } // require('react-native-
 /**
  * Apply BLE native configuration.
  */
-const withBLE: ConfigPlugin<
+export const withBLE: ConfigPlugin<
   {
     isBackgroundEnabled?: boolean
     neverForLocation?: boolean

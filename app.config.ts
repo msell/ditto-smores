@@ -20,7 +20,7 @@ module.exports = ({ config }: ConfigContext): Partial<ExpoConfig> => {
     plugins: [
       ...existingPlugins,
       require("./plugins/withSplashScreen").withSplashScreen,
-      require("./plugins/withBLE")
+      require("./plugins/withBLE").withBLE
     ],
   }
 }
