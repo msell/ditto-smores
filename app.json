@@ -15,9 +15,7 @@
     },
     "newArchEnabled": true,
     "jsEngine": "hermes",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "android": {
       "icon": "./assets/images/app-icon-android-legacy.png",
       "package": "com.atomicbytes.smores",
@@ -29,7 +27,13 @@
     "ios": {
       "icon": "./assets/images/app-icon-ios.png",
       "supportsTablet": true,
-      "bundleIdentifier": "com.atomicbytes.smores"
+      "bundleIdentifier": "com.atomicbytes.smores",
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "Uses Bluetooth to connect and sync with nearby devices.",
+        "NSLocalNetworkUsageDescription": "Uses WiFi to connect and sync with nearby devices.",
+        "NSBonjourServices": ["_http-alt._tcp."],
+        "UIBackgroundModes": ["bluetooth-peripheral", "bluetooth-central"]
+      }
     },
     "web": {
       "favicon": "./assets/images/app-icon-web-favicon.png",
