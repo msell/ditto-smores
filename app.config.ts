@@ -1,5 +1,5 @@
-import { ExpoConfig, ConfigContext } from "@expo/config"
-import { withDitto } from "./ditto-plugin"
+import type { ExpoConfig, ConfigContext } from "@expo/config"
+
 /**
  * Use ts-node here so we can use TypeScript for our Config Plugins
  * and not have to compile them to JavaScript
@@ -17,6 +17,6 @@ module.exports = ({ config }: ConfigContext): Partial<ExpoConfig> => {
 
   return {
     ...config,
-    plugins: [...existingPlugins, require("./plugins/withSplashScreen").withSplashScreen, withDitto],
+    plugins: [...existingPlugins, require("./plugins/withSplashScreen").withSplashScreen],
   }
 }
