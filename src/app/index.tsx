@@ -4,10 +4,9 @@ import { useAppTheme } from '@/utils/useAppTheme'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { observer } from 'mobx-react-lite'
 import { useState, useRef } from 'react'
-import { Pressable, TextStyle, View, ViewStyle } from 'react-native'
+import { Pressable, TextStyle, View, ViewStyle, FlatList } from 'react-native'
 import { useMutations, usePendingCursorOperation } from '@dittolive/react-ditto'
 import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated'
-import { FlashList } from '@shopify/flash-list'
 
 type Task = {
   id: string
@@ -74,7 +73,7 @@ export default observer(function WelcomeScreen() {
               Add
             </Button>
           </View>
-          <FlashList
+          <FlatList
             data={documents}
             renderItem={({ item }) => (
               <Animated.View
@@ -139,7 +138,6 @@ export default observer(function WelcomeScreen() {
               </Animated.View>
             )}
             keyExtractor={(item) => item.value.id}
-            estimatedItemSize={100}
             style={themed($taskList)}
           />
         </View>
