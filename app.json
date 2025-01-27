@@ -27,7 +27,12 @@
     "ios": {
       "icon": "./assets/images/app-icon-ios.png",
       "supportsTablet": true,
-      "bundleIdentifier": "com.atomicbytes.smores"
+      "bundleIdentifier": "com.atomicbytes.smores",
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "This app requires access to Bluetooth to connect to Ditto.",
+        "NSLocalNetworkUsageDescription": "Uses WiFi to connect and sync with nearby devices.",
+        "NSBonjourServices": ["_http-alt._tcp."]
+      }
     },
     "web": {
       "favicon": "./assets/images/app-icon-web-favicon.png",
@@ -46,8 +51,7 @@
           "backgroundColor": "#191015"
         }
       ],
-      "expo-router",
-      "./ditto-plugin"
+      "expo-router"
     ],
     "experiments": {
       "tsconfigPaths": true,

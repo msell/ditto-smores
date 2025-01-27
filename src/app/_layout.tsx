@@ -1,18 +1,16 @@
-import { useEffect, useState } from 'react'
-import { Slot, SplashScreen } from 'expo-router'
-import { KeyboardProvider } from 'react-native-keyboard-controller'
 import { Text } from '@/components'
-import { useInitialRootStore } from '@/models'
-import { useFonts } from '@expo-google-fonts/space-grotesk'
-import { customFontsToLoad } from '@/theme'
 import { initI18n } from '@/i18n'
+import { useInitialRootStore } from '@/models'
+import { customFontsToLoad } from '@/theme'
 import { loadDateFnsLocale } from '@/utils/formatDate'
 import { useThemeProvider } from '@/utils/useAppTheme'
-import {
-  DittoProvider,
-  useOnlinePlaygroundIdentity,
-} from '@dittolive/react-ditto'
 import { Ditto } from '@dittolive/ditto'
+import { DittoProvider, useOnlinePlaygroundIdentity } from '@dittolive/react-ditto'
+import { useFonts } from '@expo-google-fonts/space-grotesk'
+import { Slot, SplashScreen } from 'expo-router'
+import { useEffect, useState } from 'react'
+import { View, ViewStyle } from 'react-native'
+import { KeyboardProvider } from 'react-native-keyboard-controller'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -92,8 +90,13 @@ export default function Root() {
           /* initOptions={initOptions} */
         >
           {({ loading, error }) => {
-            if (loading) return <Text>Loading</Text>
-            if (error) return <Text>{error.message}</Text>
+            if (loading) return <View style={$container}><Text>Loading...</Text></View>
+            if (error) {
+              if(__DEV__){
+                console.tron.error(error.message, error.stack)
+              }
+              return <View style={$container}><Text>{error.message}</Text></View>
+            }
             return <Slot />
           }}
         </DittoProvider>
@@ -104,3 +107,9 @@ export default function Root() {
 function createIdentity(): import('@dittolive/ditto').Identity | undefined {
   throw new Error('Function not implemented.')
 }
+
+const $container: ViewStyle = ({
+  flex: 1,
+  alignContent: 'center',
+  justifyContent: 'center',
+})
