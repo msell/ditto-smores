@@ -137,3 +137,5 @@ dist
 expo-env.d.ts
 ios
 android
+*.ipa
+*.apk
