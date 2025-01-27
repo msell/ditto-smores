@@ -3,7 +3,7 @@ import { ThemedStyle } from '@/theme'
 import { useAppTheme } from '@/utils/useAppTheme'
 import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { observer } from 'mobx-react-lite'
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Pressable, TextStyle, View, ViewStyle } from 'react-native'
 import { useMutations, usePendingCursorOperation } from '@dittolive/react-ditto'
 import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated'
@@ -27,6 +27,19 @@ export default observer(function WelcomeScreen() {
   })
 
   const [timeouts, setTimeouts] = useState<Record<string, NodeJS.Timeout>>({})
+  const textFieldRef = useRef<any>(null)
+
+  const handleAddTask = () => {
+    upsert({
+      value: {
+        id: crypto.randomUUID(),
+        title: newItem,
+        completed: false,
+      },
+    })
+    setNewItem('')
+    textFieldRef.current?.focus()
+  }
 
   return (
     <Screen safeAreaEdges={['top']} contentContainerStyle={themed($container)}>
@@ -38,38 +51,24 @@ export default observer(function WelcomeScreen() {
           preset="heading"
         />
         <View style={themed($contentContainer)}>
-          <View style={themed($row)}>
+          <View style={themed($inputRow)}>
             <TextField
+              ref={textFieldRef}
               autoFocus
               placeholder="Add a task"
               value={newItem}
               onChangeText={setNewItem}
-              style={themed($input)}
+              containerStyle={themed($input)}
+              style={themed($textField)}
               onKeyPress={(e) => {
                 if (e.nativeEvent.key === 'Enter') {
-                  upsert({
-                    value: {
-                      id: crypto.randomUUID(),
-                      title: newItem,
-                      completed: false,
-                    },
-                  })
-                  setNewItem('')
+                  handleAddTask()
                 }
               }}
             />
             <Button
               preset="filled"
-              onPress={() => {
-                upsert({
-                  value: {
-                    id: crypto.randomUUID(),
-                    title: newItem,
-                    completed: false,
-                  },
-                })
-                setNewItem('')
-              }}
+              onPress={handleAddTask}
               style={themed($addButton)}
             >
               Add
@@ -118,12 +117,12 @@ export default observer(function WelcomeScreen() {
                   <View style={themed($row)}>
                     {item.value.completed ? (
                       <MaterialIcons
-                        name="radio-button-checked"
+                        name="check"
                         style={themed($taskIcon(item.value.completed))}
                       />
                     ) : (
                       <MaterialIcons
-                        name="radio-button-unchecked"
+                        name="check-box-outline-blank"
                         style={themed($taskIcon(item.value.completed))}
                       />
                     )}
@@ -153,11 +152,35 @@ const $row: ThemedStyle<ViewStyle> = ({ spacing }) => ({
   flexDirection: 'row',
   alignItems: 'center',
   gap: spacing.sm,
+  width: '100%',
 })
 
-const $taskTitle = (completed: boolean): TextStyle => ({
-  textDecorationLine: completed ? 'line-through' : 'none',
+const $inputRow: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  flexDirection: 'row',
+  alignItems: 'center',
+  gap: spacing.sm,
+  width: '100%',
+  justifyContent: 'space-between',
 })
+
+const $input: ThemedStyle<ViewStyle> = () => ({
+  flexGrow: 1,
+})
+
+const $textField: ThemedStyle<TextStyle> = () => ({
+  height: 40,
+})
+
+const $addButton: ThemedStyle<ViewStyle> = ({ spacing }) => ({
+  paddingHorizontal: spacing.lg,
+})
+
+const $taskTitle =
+  (completed: boolean): ThemedStyle<TextStyle> =>
+  ({ colors }) => ({
+    textDecorationLine: completed ? 'line-through' : 'none',
+    color: colors.palette.neutral800,
+  })
 
 const $taskIcon =
   (completed: boolean): ThemedStyle<TextStyle> =>
@@ -195,20 +218,10 @@ const $contentContainer: ThemedStyle<ViewStyle> = ({ spacing, colors }) => ({
   maxWidth: 600,
   gap: spacing.lg,
   paddingHorizontal: spacing.lg,
-  backgroundColor: colors.palette.neutral700,
+  backgroundColor: colors.palette.accent200,
   borderRadius: 10,
   padding: spacing.lg,
   boxShadow: `0 0 10px ${colors.palette.neutral400}`,
-})
-
-const $input: TextStyle = {
-  height: 40,
-  flex: 1,
-}
-
-const $addButton: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  height: 48,
-  paddingHorizontal: spacing.lg,
 })
 
 const $card: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
