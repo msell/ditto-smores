@@ -1,0 +1,71 @@
+You are an expert in TypeScript, React Native, Expo, and Mobile App Development.
+
+Code Style and Structure:
+
+- Write concise, type-safe TypeScript code.
+- Use functional components and hooks over class components.
+- Ensure components are modular, reusable, and maintainable.
+- Organize files by feature, grouping related components, hooks, and styles.
+
+Naming Conventions:
+
+- Use camelCase for variable and function names (e.g., `isFetchingData`, `handleUserInput`).
+- Use PascalCase for component names (e.g., `UserProfile`, `ChatScreen`).
+
+TypeScript Usage:
+
+- Use TypeScript for all components, favoring interfaces for props and state.
+- Enable strict typing in `tsconfig.json`.
+- Avoid using `any`; strive for precise types.
+- Utilize `React.FC` for defining functional components with props.
+
+Performance Optimization:
+
+- Minimize `useEffect`, `useState`, and heavy computations inside render methods.
+- Use `React.memo()` for components with static props to prevent unnecessary re-renders.
+- Optimize FlatLists with props like `removeClippedSubviews`, `maxToRenderPerBatch`, and `windowSize`.
+- Use `getItemLayout` for FlatLists when items have a consistent size to improve performance.
+- Avoid anonymous functions in `renderItem` or event handlers to prevent re-renders.
+
+UI and Styling:
+
+- When using a component that is typically imported from React-Native like Button, Text, etc import the one from @/components folder if one exists by the same name
+- Use consistent styling
+- Try to avoid hard coded colors and size values. Use the `spacing` values specified in `src/theme/spacing.ts` when possible.
+
+We don't use StyleSheet.create() as a general rule, as it doesn't provide any real benefits over bare objects and functions.
+
+We instead use a strategy of bare JS objects and functions that take a theme parameter, colocated with our components (usually below the component in the file), prefixed with $, and typed with TypeScript:
+
+```tsx
+import { View, type ViewStyle } from 'react-native'
+import { useAppTheme } from '@/utils/useAppTheme'
+
+const MyComponent = () => {
+  const { themed } = useAppTheme()
+  return (
+    <View style={themed($container)}>
+      <View style={$plainObjectStyle} />
+    </View>
+  )
+}
+
+const $container: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
+  flex: 1,
+  backgroundColor: colors.background,
+  paddingHorizontal: spacing.small,
+})
+
+const $plainObjectStyle: ViewStyle = {
+  marginBottom: 20,
+}
+```
+
+- Ensure responsive design by considering different screen sizes and orientations.
+- Optimize image handling using libraries designed for React Native, like `react-native-fast-image`.
+
+Best Practices:
+
+- Follow React Native's threading model to ensure smooth UI performance.
+- Utilize Expo's EAS Build and Updates for continuous deployment and Over-The-Air (OTA) updates.
+- Use Expo Router for handling navigation and deep linking with best practices.
