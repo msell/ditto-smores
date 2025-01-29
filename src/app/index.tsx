@@ -89,6 +89,9 @@ export default function WelcomeScreen() {
             completed: doc.value.completed as boolean,
           }))
 
+          if (__DEV__) {
+            console.tron.log(response)
+          }
           console.log('fetchedTasks', JSON.stringify(fetchedTasks, null, 2))
           setTasks(fetchedTasks)
         }
@@ -134,7 +137,7 @@ export default function WelcomeScreen() {
     if (ditto.current === null) return
 
     await ditto.current.store.execute(
-      `UPDATE tasks SET completed = ${isCompleted} WHERE id = '${taskId}'`
+      `UPDATE tasks SET completed = ${isCompleted} WHERE _id = '${taskId}'`
     )
 
     if (isCompleted) {
