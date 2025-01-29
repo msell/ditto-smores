@@ -15,9 +15,7 @@
     },
     "newArchEnabled": true,
     "jsEngine": "hermes",
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "android": {
       "icon": "./assets/images/app-icon-android-legacy.png",
       "package": "com.atomicbytes.smores",
@@ -48,7 +46,15 @@
           "backgroundColor": "#191015"
         }
       ],
-      "expo-router"
+      "expo-router",
+      [
+        "react-native-ble-plx",
+        {
+          "isBackgroundEnabled": true,
+          "modes": ["peripheral", "central"],
+          "bluetoothAlwaysUsageDescription": "Uses Bluetooth to connect and sync with nearby devices."
+        }
+      ]
     ],
     "experiments": {
       "tsconfigPaths": true,
