@@ -18,6 +18,7 @@ type Task = {
   id: string
   title: string
   completed: boolean
+  isArchived: boolean
 }
 
 function WebApp() {
@@ -52,9 +53,15 @@ const WelcomeScreen = observer(function WelcomeScreen() {
   const [newItem, setNewItem] = useState('')
   const { documents } = usePendingCursorOperation({
     collection: 'tasks',
+    args: {
+      query: {
+        isArchived: false,
+      },
+    },
   })
 
-  const { upsert, updateByID, removeByID } = useMutations({
+  console.log('documents', documents)
+  const { upsert, updateByID } = useMutations({
     collection: 'tasks',
   })
 
@@ -62,12 +69,14 @@ const WelcomeScreen = observer(function WelcomeScreen() {
   const textFieldRef = useRef<any>(null)
 
   const handleAddTask = () => {
+    const newTask: Task = {
+      id: Crypto.randomUUID(),
+      title: newItem,
+      completed: false,
+      isArchived: false,
+    }
     upsert({
-      value: {
-        id: Crypto.randomUUID(),
-        title: newItem,
-        completed: false,
-      },
+      value: newTask,
     })
     setNewItem('')
     textFieldRef.current?.focus()
@@ -107,7 +116,7 @@ const WelcomeScreen = observer(function WelcomeScreen() {
             </Button>
           </View>
           <FlatList
-            data={documents}
+            data={documents.filter((doc) => !doc.value.isArchived)}
             renderItem={({ item }) => (
               <Animated.View
                 key={item.value.id}
@@ -128,7 +137,12 @@ const WelcomeScreen = observer(function WelcomeScreen() {
 
                     if (isCompleted) {
                       const timeoutId = setTimeout(() => {
-                        removeByID({ _id: item.id })
+                        updateByID({
+                          _id: item.id,
+                          updateClosure: (mutableDoc) => {
+                            mutableDoc.at('isArchived').set(true)
+                          },
+                        })
                       }, 5000)
 
                       setTimeouts((prevTimeouts) => ({

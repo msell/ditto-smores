@@ -25,6 +25,7 @@ type Task = {
   id: string
   title: string
   completed: boolean
+  isArchived: boolean
 }
 
 function generateUUID(): string {
@@ -87,6 +88,7 @@ export default function WelcomeScreen() {
             id: doc.value._id,
             title: doc.value.title as string,
             completed: doc.value.completed as boolean,
+            isArchived: doc.value.isArchived as boolean,
           }))
 
           if (__DEV__) {
@@ -124,7 +126,12 @@ export default function WelcomeScreen() {
     }
 
     const newId = Crypto.randomUUID()
-    const newTask = { id: newId, title: task, completed: false }
+    const newTask: Task = {
+      id: newId,
+      title: task,
+      completed: false,
+      isArchived: false,
+    }
     await ditto.current.store.execute(
       `INSERT INTO tasks DOCUMENTS (:document) ON ID CONFLICT DO UPDATE`,
       { document: newTask }
@@ -142,8 +149,11 @@ export default function WelcomeScreen() {
 
     if (isCompleted) {
       const timeoutId = setTimeout(async () => {
+        /* To remove documents with active subscriptions,
+          you must first cancel the relevant subscription before calling the EVICT method.
+      */
         await ditto.current?.store.execute(
-          `DELETE FROM tasks WHERE id = '${taskId}'`
+          `UPDATE tasks SET isArchived = true WHERE _id = '${taskId}'`
         )
       }, 5000)
 
@@ -214,7 +224,7 @@ export default function WelcomeScreen() {
             </Button>
           </View>
           <FlatList
-            data={tasks}
+            data={tasks.filter((task) => !task.isArchived)}
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
             style={themed($taskList)}
