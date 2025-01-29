@@ -4,21 +4,15 @@ import {
   PermissionsAndroid,
   Platform,
   View,
-  Pressable,
   Alert,
-  ViewStyle,
-  TextStyle,
 } from 'react-native'
 import {
   Ditto,
   IdentityOnlinePlayground,
   TransportConfig,
 } from '@dittolive/ditto'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
-import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated'
 import { Button, Screen, TextField, Text } from '@/components'
 import { useAppTheme } from '@/utils/useAppTheme'
-import { ThemedStyle } from '@/theme'
 import * as Crypto from 'expo-crypto'
 import { Task } from '@/types/task'
 import { TaskItem } from '@/components/TaskItem'

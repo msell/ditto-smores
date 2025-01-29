@@ -1,12 +1,9 @@
 import { Button, Screen, Text, TextField } from '@/components'
-import { ThemedStyle } from '@/theme'
 import { useAppTheme } from '@/utils/useAppTheme'
-import MaterialIcons from '@expo/vector-icons/MaterialIcons'
 import { observer } from 'mobx-react-lite'
 import { useState, useRef } from 'react'
-import { Pressable, TextStyle, View, ViewStyle, FlatList } from 'react-native'
+import { View, FlatList } from 'react-native'
 import { useMutations, usePendingCursorOperation } from '@dittolive/react-ditto'
-import Animated, { FadeInUp, FadeOutDown } from 'react-native-reanimated'
 import {
   DittoProvider,
   useOnlinePlaygroundIdentity,
