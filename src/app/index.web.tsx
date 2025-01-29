@@ -39,7 +39,7 @@ function WebApp() {
     >
       {({ loading, error }) => {
         if (loading) return <Text>Loading</Text>
-        if (error) return <Text>{error.message}</Text>
+        if (error) return <Text>{`web: ${error.message}`}</Text>
         return <WelcomeScreen />
       }}
     </DittoProvider>
