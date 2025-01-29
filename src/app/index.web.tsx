@@ -12,6 +12,7 @@ import {
   useOnlinePlaygroundIdentity,
 } from '@dittolive/react-ditto'
 import { Ditto } from '@dittolive/ditto'
+import * as Crypto from 'expo-crypto'
 
 type Task = {
   id: string
@@ -63,7 +64,7 @@ const WelcomeScreen = observer(function WelcomeScreen() {
   const handleAddTask = () => {
     upsert({
       value: {
-        id: crypto.randomUUID(),
+        id: Crypto.randomUUID(),
         title: newItem,
         completed: false,
       },
