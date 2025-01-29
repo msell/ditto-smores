@@ -20,13 +20,19 @@ import { Button, Screen, TextField, Text } from '@/components'
 import { useAppTheme } from '@/utils/useAppTheme'
 import { ThemedStyle } from '@/theme'
 import * as Crypto from 'expo-crypto'
-
-type Task = {
-  id: string
-  title: string
-  completed: boolean
-  isArchived: boolean
-}
+import { Task } from '@/types/task'
+import { TaskItem } from '@/components/TaskItem'
+import {
+  $addButton,
+  $container,
+  $contentContainer,
+  $input,
+  $inputRow,
+  $taskList,
+  $textField,
+  $topContainer,
+  $welcomeHeading,
+} from '@/styles/taskStyles'
 
 function generateUUID(): string {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
@@ -173,28 +179,7 @@ export default function WelcomeScreen() {
   }
 
   const renderItem = ({ item }: { item: Task }) => (
-    <Animated.View
-      entering={FadeInUp}
-      exiting={FadeOutDown}
-      style={themed($card)}
-    >
-      <Pressable onPress={() => toggleTaskCompletion(item.id, !item.completed)}>
-        <View style={themed($row)}>
-          {item.completed ? (
-            <MaterialIcons
-              name="check"
-              style={themed($taskIcon(item.completed))}
-            />
-          ) : (
-            <MaterialIcons
-              name="check-box-outline-blank"
-              style={themed($taskIcon(item.completed))}
-            />
-          )}
-          <Text style={themed($taskTitle(item.completed))}>{item.title}</Text>
-        </View>
-      </Pressable>
-    </Animated.View>
+    <TaskItem task={item} onToggle={toggleTaskCompletion} />
   )
 
   return (
@@ -234,87 +219,3 @@ export default function WelcomeScreen() {
     </Screen>
   )
 }
-
-const $row: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: spacing.sm,
-  width: '100%',
-})
-
-const $inputRow: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: spacing.sm,
-  width: '100%',
-  justifyContent: 'space-between',
-})
-
-const $input: ThemedStyle<ViewStyle> = () => ({
-  flexGrow: 1,
-})
-
-const $textField: ThemedStyle<TextStyle> = () => ({
-  height: 40,
-})
-
-const $addButton: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  paddingHorizontal: spacing.lg,
-})
-
-const $taskTitle =
-  (completed: boolean): ThemedStyle<TextStyle> =>
-  ({ colors }) => ({
-    textDecorationLine: completed ? 'line-through' : 'none',
-    color: colors.palette.neutral800,
-  })
-
-const $taskIcon =
-  (completed: boolean): ThemedStyle<TextStyle> =>
-  ({ colors }) => ({
-    color: completed ? colors.palette.primary500 : colors.palette.neutral400,
-    fontSize: 24,
-  })
-
-const $container: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  flex: 1,
-  backgroundColor: colors.background,
-})
-
-const $topContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flex: 1,
-  alignItems: 'center',
-  paddingTop: spacing.xl,
-  width: '100%',
-})
-
-const $welcomeHeading: ThemedStyle<TextStyle> = ({ spacing }) => ({
-  marginBottom: spacing.md,
-})
-
-const $taskList: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flexGrow: 1,
-  width: '100%',
-  paddingTop: spacing.lg,
-  gap: spacing.xs,
-})
-
-const $contentContainer: ThemedStyle<ViewStyle> = ({ spacing, colors }) => ({
-  flex: 1,
-  width: '100%',
-  maxWidth: 600,
-  gap: spacing.lg,
-  paddingHorizontal: spacing.lg,
-  backgroundColor: colors.palette.accent200,
-  borderRadius: 10,
-  padding: spacing.lg,
-  boxShadow: `0 0 10px ${colors.palette.neutral400}`,
-})
-
-const $card: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
-  backgroundColor: colors.palette.neutral100,
-  borderRadius: 8,
-  padding: spacing.md,
-  marginVertical: spacing.xs,
-  boxShadow: `0 2px 4px ${colors.palette.neutral400}`,
-})

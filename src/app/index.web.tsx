@@ -13,13 +13,19 @@ import {
 } from '@dittolive/react-ditto'
 import { Ditto } from '@dittolive/ditto'
 import * as Crypto from 'expo-crypto'
-
-type Task = {
-  id: string
-  title: string
-  completed: boolean
-  isArchived: boolean
-}
+import { Task } from '@/types/task'
+import { TaskItem } from '@/components/TaskItem'
+import {
+  $addButton,
+  $container,
+  $contentContainer,
+  $input,
+  $inputRow,
+  $taskList,
+  $textField,
+  $topContainer,
+  $welcomeHeading,
+} from '@/styles/taskStyles'
 
 function WebApp() {
   const { create } = useOnlinePlaygroundIdentity()
@@ -118,71 +124,41 @@ const WelcomeScreen = observer(function WelcomeScreen() {
           <FlatList
             data={documents.filter((doc) => !doc.value.isArchived)}
             renderItem={({ item }) => (
-              <Animated.View
-                key={item.value.id}
-                entering={FadeInUp}
-                exiting={FadeOutDown}
-                style={themed($card)}
-              >
-                <Pressable
-                  onPress={() => {
-                    const isCompleted = !item.value.completed
+              <TaskItem
+                task={item.value as Task}
+                onToggle={(taskId, isCompleted) => {
+                  updateByID({
+                    _id: item.id,
+                    updateClosure: (mutableDoc) => {
+                      mutableDoc.at('completed').set(isCompleted)
+                    },
+                  })
 
-                    updateByID({
-                      _id: item.id,
-                      updateClosure: (mutableDoc) => {
-                        mutableDoc.at('completed').set(isCompleted)
-                      },
-                    })
+                  if (isCompleted) {
+                    const timeoutId = setTimeout(() => {
+                      updateByID({
+                        _id: item.id,
+                        updateClosure: (mutableDoc) => {
+                          mutableDoc.at('isArchived').set(true)
+                        },
+                      })
+                    }, 5000)
 
-                    if (isCompleted) {
-                      const timeoutId = setTimeout(() => {
-                        updateByID({
-                          _id: item.id,
-                          updateClosure: (mutableDoc) => {
-                            mutableDoc.at('isArchived').set(true)
-                          },
-                        })
-                      }, 5000)
-
-                      setTimeouts((prevTimeouts) => ({
-                        ...prevTimeouts,
-                        [item.value.id]: timeoutId,
-                      }))
-                    } else {
-                      if (timeouts[item.value.id]) {
-                        clearTimeout(timeouts[item.value.id])
-                        setTimeouts((prevTimeouts) => {
-                          const { [item.value.id]: _, ...rest } = prevTimeouts
-                          return rest
-                        })
-                      }
+                    setTimeouts((prevTimeouts) => ({
+                      ...prevTimeouts,
+                      [taskId]: timeoutId,
+                    }))
+                  } else {
+                    if (timeouts[taskId]) {
+                      clearTimeout(timeouts[taskId])
+                      setTimeouts((prevTimeouts) => {
+                        const { [taskId]: _, ...rest } = prevTimeouts
+                        return rest
+                      })
                     }
-                  }}
-                >
-                  <View style={themed($row)}>
-                    {item.value.completed ? (
-                      <MaterialIcons
-                        name="check"
-                        style={themed($taskIcon(item.value.completed))}
-                      />
-                    ) : (
-                      <MaterialIcons
-                        name="check-box-outline-blank"
-                        style={themed($taskIcon(item.value.completed))}
-                      />
-                    )}
-
-                    <Text
-                      style={themed($taskTitle(item.value.completed))}
-                      preset="subheading"
-                      numberOfLines={3}
-                    >
-                      {item.value.title}
-                    </Text>
-                  </View>
-                </Pressable>
-              </Animated.View>
+                  }
+                }}
+              />
             )}
             keyExtractor={(item) => item.value.id}
             style={themed($taskList)}
@@ -191,90 +167,6 @@ const WelcomeScreen = observer(function WelcomeScreen() {
       </View>
     </Screen>
   )
-})
-
-const $row: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: spacing.sm,
-  width: '100%',
-})
-
-const $inputRow: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flexDirection: 'row',
-  alignItems: 'center',
-  gap: spacing.sm,
-  width: '100%',
-  justifyContent: 'space-between',
-})
-
-const $input: ThemedStyle<ViewStyle> = () => ({
-  flexGrow: 1,
-})
-
-const $textField: ThemedStyle<TextStyle> = () => ({
-  height: 40,
-})
-
-const $addButton: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  paddingHorizontal: spacing.lg,
-})
-
-const $taskTitle =
-  (completed: boolean): ThemedStyle<TextStyle> =>
-  ({ colors }) => ({
-    textDecorationLine: completed ? 'line-through' : 'none',
-    color: colors.palette.neutral800,
-  })
-
-const $taskIcon =
-  (completed: boolean): ThemedStyle<TextStyle> =>
-  ({ colors }) => ({
-    color: completed ? colors.palette.primary500 : colors.palette.neutral400,
-    fontSize: 24,
-  })
-
-const $container: ThemedStyle<ViewStyle> = ({ colors }) => ({
-  flex: 1,
-  backgroundColor: colors.background,
-})
-
-const $topContainer: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flex: 1,
-  alignItems: 'center',
-  paddingTop: spacing.xl,
-  width: '100%',
-})
-
-const $welcomeHeading: ThemedStyle<TextStyle> = ({ spacing }) => ({
-  marginBottom: spacing.md,
-})
-
-const $taskList: ThemedStyle<ViewStyle> = ({ spacing }) => ({
-  flexGrow: 1,
-  width: '100%',
-  paddingTop: spacing.lg,
-  gap: spacing.xs,
-})
-
-const $contentContainer: ThemedStyle<ViewStyle> = ({ spacing, colors }) => ({
-  flex: 1,
-  width: '100%',
-  maxWidth: 600,
-  gap: spacing.lg,
-  paddingHorizontal: spacing.lg,
-  backgroundColor: colors.palette.accent200,
-  borderRadius: 10,
-  padding: spacing.lg,
-  boxShadow: `0 0 10px ${colors.palette.neutral400}`,
-})
-
-const $card: ThemedStyle<ViewStyle> = ({ colors, spacing }) => ({
-  backgroundColor: colors.palette.neutral100,
-  borderRadius: 8,
-  padding: spacing.md,
-  marginVertical: spacing.xs,
-  boxShadow: `0 2px 4px ${colors.palette.neutral400}`,
 })
 
 export default WebApp
